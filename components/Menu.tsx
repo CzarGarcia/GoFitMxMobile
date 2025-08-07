@@ -1,10 +1,11 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring
 } from 'react-native-reanimated';
 import { Colors } from '../constants/Colors';
 
@@ -12,15 +13,33 @@ const { height } = Dimensions.get('window');
 const MENU_HEIGHT = height * 0.75; // 75% de la pantalla
 
 export default function FullHeightMenu() {
+  const router = useRouter();
+
   const menuVisible = useSharedValue(false);
   const translateY = useSharedValue(height);
 
-  const toggleMenu = () => {
-    menuVisible.value = !menuVisible.value;
-    translateY.value = withSpring(menuVisible.value ? height - MENU_HEIGHT : height, {
+  const openMenu = () => {
+    menuVisible.value = true;
+    translateY.value = withSpring(height - MENU_HEIGHT, {
       damping: 25,
       stiffness: 300
     });
+  };
+
+  const closeMenu = () => {
+    menuVisible.value = false;
+    translateY.value = withSpring(height, {
+      damping: 25,
+      stiffness: 300
+    });
+  };
+
+  const toggleMenu = () => {
+    if (menuVisible.value) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
   };
 
   const menuStyle = useAnimatedStyle(() => ({
@@ -28,16 +47,24 @@ export default function FullHeightMenu() {
     height: MENU_HEIGHT,
   }));
 
+  // Función para cerrar menú y navegar
+  const onPressNavigate = (route: string) => {
+    closeMenu();
+    setTimeout(() => {
+      router.push(`/${route}`);
+    }, 300); // espera un poco para que la animación termine
+  };
+
   return (
     <>
       {/* Botón de menú flotante */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.menuButton}
         onPress={toggleMenu}
       >
-        <MaterialCommunityIcons 
-          name={menuVisible.value ? "close" : "menu"} 
-          size={28} 
+        <MaterialCommunityIcons
+          name={menuVisible.value ? "close" : "menu"}
+          size={28}
           color="white"
         />
       </TouchableOpacity>
@@ -48,7 +75,7 @@ export default function FullHeightMenu() {
           colors={['rgba(30, 41, 59, 0.98)', 'rgba(15, 23, 42, 0.98)']}
           style={StyleSheet.absoluteFill}
         />
-        
+
         {/* Encabezado */}
         <View style={styles.header}>
           <Text style={styles.title}>GOFITMX</Text>
@@ -56,43 +83,61 @@ export default function FullHeightMenu() {
         </View>
 
         {/* Lista desplazable */}
-        <ScrollView 
+        <ScrollView
           style={styles.scrollContainer}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <MenuItem icon="account" label="Mi perfil" />
-          <MenuItem icon="home" label="Inicio" />
-          <MenuItem icon="calendar" label="Agenda" count="12" />
-          <MenuItem icon="credit-card" label="Pagos y membresía" />
-          <MenuItem icon="chart-line" label="Estadísticas" />
-          <MenuItem icon="trophy" label="Logros" />
-          
+          <MenuItem
+            icon="account"
+            label="Mi perfil"
+            onPress={() => onPressNavigate('ProfileScreen')}
+          />
+          <MenuItem
+            icon="home"
+            label="Inicio"
+            onPress={() => onPressNavigate('home')}
+          />
+          <MenuItem
+            icon="calendar"
+            label="Agenda"
+            count="12" // cambia a tu ruta real
+          />
+          <MenuItem
+            icon="credit-card"
+            label="Pagos y membresía" // cambia a tu ruta real
+          />
+          <MenuItem
+            icon="chart-line"
+            label="Estadísticas" // cambia a tu ruta real
+          />
+          <MenuItem
+            icon="trophy"
+            label="Logros"// cambia a tu ruta real
+          />
+
           {/* Sección QR */}
-          <View style={styles.qrSection}>
-            <Text style={styles.sectionTitle}>TU CÓDIGO QR</Text>
-            <View style={styles.qrContainer}>
-              <MaterialCommunityIcons 
-                name="qrcode" 
-                size={150} 
-                color={Colors.primary}
-              />
-              <Text style={styles.qrText}>ID: GFXM-USER-12345</Text>
-            </View>
-          </View>
+          <TouchableOpacity
+            style={styles.qrContainer}
+            onPress={() => onPressNavigate('QRScreen')}
+          >
+            <MaterialCommunityIcons name="qrcode" size={150} color={Colors.primary} />
+            <Text style={styles.qrText}>ID: GFXM-USER-12345</Text>
+          </TouchableOpacity>
         </ScrollView>
       </Animated.View>
     </>
   );
 }
 
-const MenuItem = ({ icon, label, count }: { icon: string, label: string, count?: string }) => (
-  <TouchableOpacity style={styles.menuItem}>
+// Modificamos MenuItem para aceptar onPress
+const MenuItem = ({ icon, label, count, onPress }: { icon: string, label: string, count?: string, onPress?: () => void }) => (
+  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
     <View style={styles.itemContent}>
-      <MaterialCommunityIcons 
-        name={icon} 
-        size={26} 
-        color="white" 
+      <MaterialCommunityIcons
+        name={icon}
+        size={26}
+        color="white"
         style={styles.itemIcon}
       />
       <Text style={styles.itemLabel}>{label}</Text>
@@ -102,10 +147,10 @@ const MenuItem = ({ icon, label, count }: { icon: string, label: string, count?:
         <Text style={styles.badgeText}>{count}</Text>
       </View>
     )}
-    <MaterialCommunityIcons 
-      name="chevron-right" 
-      size={20} 
-      color={Colors.textMuted} 
+    <MaterialCommunityIcons
+      name="chevron-right"
+      size={20}
+      color={Colors.textMuted}
     />
   </TouchableOpacity>
 );
@@ -195,19 +240,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 12,
     fontWeight: 'bold',
-  },
-  qrSection: {
-    marginTop: 20,
-    padding: 25,
-    paddingTop: 15,
-  },
-  sectionTitle: {
-    color: Colors.textMuted,
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 20,
-    letterSpacing: 1,
-    textAlign: 'center',
   },
   qrContainer: {
     alignItems: 'center',
