@@ -5,5 +5,8 @@ export const Colors = {
   text: '#1e293b',      // Texto oscuro pero no negro
   card: '#ffffff',      // Fondo de tarjetas
   border: '#e2e8f0',    // Bordes claros
-  notification: '#f43f5e' // Rojo para notificaciones
+  notification: '#f43f5e', // Rojo para notificaciones
+  menuBackground: 'rgba(15, 23, 42, 0.95)', // Dark blue
+  textMuted: '#94a3b8', // Gray-400
+
 }
