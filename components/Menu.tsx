@@ -102,18 +102,13 @@ export default function FullHeightMenu() {
             icon="calendar"
             label="Agenda"
             count="12" // cambia a tu ruta real
+             onPress={() => onPressNavigate('ScheduleScreen')}
           />
+          
           <MenuItem
             icon="credit-card"
             label="Pagos y membresía" // cambia a tu ruta real
-          />
-          <MenuItem
-            icon="chart-line"
-            label="Estadísticas" // cambia a tu ruta real
-          />
-          <MenuItem
-            icon="trophy"
-            label="Logros"// cambia a tu ruta real
+            onPress={() => onPressNavigate('PaymentMembershipScreen')}
           />
 
           {/* Sección QR */}
