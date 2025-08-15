@@ -1,16 +1,13 @@
+// app/instructor/profile.tsx
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../constants/Colors';
+import { Colors } from '../../constants/Colors';
+
+export default function InstructorProfileScreen() {
   const router = useRouter();
 
-  const onPressNavigate = (route: string) => {
-    setTimeout(() => router.push(`/${route}`), 300);
-  };
-
-
-export default function ProfileScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Encabezado con gradiente */}
@@ -22,10 +19,10 @@ export default function ProfileScreen() {
       >
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>U</Text>
+            <Text style={styles.avatarText}>I</Text>
           </View>
-          <Text style={styles.userName}>USUARIO PREMIUM</Text>
-          <Text style={styles.membership}>Membresía Black • 6 meses</Text>
+          <Text style={styles.userName}>ALEJANDRO MARTÍNEZ</Text>
+          <Text style={styles.membership}>Instructor • Sucursal Centro</Text>
         </View>
       </LinearGradient>
 
@@ -36,37 +33,23 @@ export default function ProfileScreen() {
         <StatItem icon="trophy" value="5" label="Logros" />
       </View>
 
-      {/* Sección de información */}
+      {/* Información personal */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>INFORMACIÓN PERSONAL</Text>
         <InfoRow icon="account" label="Nombre" value="Alejandro Martínez" />
-        <InfoRow icon="email" label="Correo" value="usuario@gofitmx.com" />
+        <InfoRow icon="email" label="Correo" value="instructor@gofitmx.com" />
         <InfoRow icon="phone" label="Teléfono" value="+52 81 1234 5678" />
         <InfoRow icon="map-marker" label="Sucursal" value="Centro (Principal)" />
       </View>
 
-      {/* Sección de métricas */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>TUS ESTADÍSTICAS</Text>
-        <ProgressMetric label="Fuerza" progress={85} />
-        <ProgressMetric label="Resistencia" progress={72} />
-        <ProgressMetric label="Flexibilidad" progress={63} />
-        <ProgressMetric label="Consistencia" progress={91} />
-      </View>
-
-      {/* Sección de acciones */}
+      {/* Acciones del instructor */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>ACCIONES</Text>
         <ActionButton icon="qrcode" label="Mostrar mi QR de acceso" />
+        <ActionButton icon="account-group" label="Historial de clientes asignados" />
+        <ActionButton icon="bell" label="Recordatorios" />
         <ActionButton icon="settings" label="Configuración de cuenta" />
-        <ActionButton 
-          icon="logout" 
-          label="Cerrar sesión" 
-          color="#ef4444" 
-           onPress={async () => {
-    router.replace("/index");   // Redirige al index.tsx
-  }}
-        />
+        <ActionButton icon="logout" label="Cerrar sesión" color="#ef4444" />
       </View>
     </ScrollView>
   );
@@ -91,20 +74,8 @@ const InfoRow = ({ icon, label, value }: { icon: string, label: string, value: s
   </View>
 );
 
-const ProgressMetric = ({ label, progress }: { label: string, progress: number }) => (
-  <View style={styles.metricContainer}>
-    <View style={styles.metricHeader}>
-      <Text style={styles.metricLabel}>{label}</Text>
-      <Text style={styles.metricValue}>{progress}%</Text>
-    </View>
-    <View style={styles.progressBar}>
-      <View style={[styles.progressFill, { width: `${progress}%` }]} />
-    </View>
-  </View>
-);
-
-const ActionButton = ({ icon, label, color, onPress }: { icon: string, label: string, color?: string, onPress?: () => void }) => (
-  <TouchableOpacity style={styles.actionButton} onPress={onPress}>
+const ActionButton = ({ icon, label, color }: { icon: string, label: string, color?: string }) => (
+  <TouchableOpacity style={styles.actionButton}>
     <MaterialCommunityIcons 
       name={icon} 
       size={22} 
@@ -218,34 +189,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     color: Colors.text,
-  },
-  metricContainer: {
-    marginBottom: 15,
-  },
-  metricHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 5,
-  },
-  metricLabel: {
-    fontSize: 15,
-    color: Colors.text,
-  },
-  metricValue: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: Colors.primary,
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: Colors.primary,
-    borderRadius: 3,
   },
   actionButton: {
     flexDirection: 'row',

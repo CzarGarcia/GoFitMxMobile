@@ -1,16 +1,16 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Dimensions,
-    Modal,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  Dimensions,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { Colors } from '../constants/Colors';
 
@@ -76,6 +76,7 @@ export default function PaymentMembershipScreen() {
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showCardModal, setShowCardModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [cardDetails, setCardDetails] = useState({
     number: '',
     expiry: '',
@@ -91,7 +92,6 @@ export default function PaymentMembershipScreen() {
   };
 
   const handleAddCard = () => {
-    // Validación básica
     if (cardDetails.number.length < 16 || cardDetails.expiry.length < 5 || cardDetails.cvc.length < 3) {
       Alert.alert("Error", "Por favor completa todos los campos correctamente");
       return;
@@ -107,6 +107,12 @@ export default function PaymentMembershipScreen() {
     Alert.alert("Membresía cancelada", "Tu plan se cancelará al finalizar el período actual");
   };
 
+  const confirmRestore = () => {
+    setIsCancelled(false);
+    setShowRestoreModal(false);
+    Alert.alert("Plan Restaurado", "Tu membresía ha sido reactivada con éxito");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView 
@@ -119,41 +125,47 @@ export default function PaymentMembershipScreen() {
         {/* Información del Plan */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Tu Plan Actual</Text>
-          {isCancelled ? (
-            <View style={styles.cancelledBadge}>
-              <Text style={styles.cancelledText}>CANCELADO</Text>
-            </View>
-          ) : null}
-          <View style={styles.planHeader}>
-            <Text style={styles.planName}>{userPlan.name}</Text>
-            <Text style={styles.planPrice}>{userPlan.price}</Text>
-          </View>
-          <Text style={styles.renewalText}>
-            Próxima renovación: {userPlan.renewalDate}
-          </Text>
           
-          <View style={styles.benefitsContainer}>
-            {userPlan.benefits.map((benefit, index) => (
-              <View key={index} style={styles.benefitItem}>
-                <MaterialCommunityIcons 
-                  name="check-circle" 
-                  size={16} 
-                  color="#10B981" 
-                />
-                <Text style={styles.benefitText}>{benefit}</Text>
+          {isCancelled ? (
+            <View style={styles.cancelledSection}>
+              <View style={styles.cancelledBadge}>
+                <Text style={styles.cancelledText}>CANCELADO</Text>
               </View>
-            ))}
-          </View>
+              <Text style={styles.cancelledMessage}>
+                Tu plan finalizará el {userPlan.renewalDate}
+              </Text>
+            </View>
+          ) : (
+            <>
+              <View style={styles.planHeader}>
+                <Text style={styles.planName}>{userPlan.name}</Text>
+                <Text style={styles.planPrice}>{userPlan.price}</Text>
+              </View>
+              <Text style={styles.renewalText}>
+                Próxima renovación: {userPlan.renewalDate}
+              </Text>
+              
+              <View style={styles.benefitsContainer}>
+                {userPlan.benefits.map((benefit, index) => (
+                  <View key={index} style={styles.benefitItem}>
+                    <MaterialCommunityIcons 
+                      name="check-circle" 
+                      size={16} 
+                      color="#10B981" 
+                    />
+                    <Text style={styles.benefitText}>{benefit}</Text>
+                  </View>
+                ))}
+              </View>
 
-          <TouchableOpacity 
-            style={styles.changePlanButton}
-            onPress={() => setShowPlanModal(true)}
-            disabled={isCancelled}
-          >
-            <Text style={styles.changePlanText}>
-              {isCancelled ? "Plan Cancelado" : "Cambiar Plan"}
-            </Text>
-          </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.changePlanButton}
+                onPress={() => setShowPlanModal(true)}
+              >
+                <Text style={styles.changePlanText}>Cambiar Plan</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
 
         {/* Métodos de Pago */}
@@ -202,12 +214,19 @@ export default function PaymentMembershipScreen() {
         </View>
 
         {/* Cancelar Membresía */}
-        {!isCancelled && (
+        {!isCancelled ? (
           <TouchableOpacity 
             style={styles.cancelButton}
             onPress={() => setShowCancelModal(true)}
           >
             <Text style={styles.cancelButtonText}>Cancelar Membresía</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity 
+            style={styles.renewButton}
+            onPress={() => setShowRestoreModal(true)}
+          >
+            <Text style={styles.renewButtonText}>Renovar Plan</Text>
           </TouchableOpacity>
         )}
 
@@ -351,6 +370,45 @@ export default function PaymentMembershipScreen() {
             </View>
           </View>
         </Modal>
+
+        {/* Modal: Restaurar Membresía */}
+        <Modal
+          visible={showRestoreModal}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={() => setShowRestoreModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <MaterialCommunityIcons 
+                name="check-circle" 
+                size={50} 
+                color="#10B981" 
+                style={styles.restoreIcon}
+              />
+              <Text style={styles.modalTitle}>¿Restaurar Membresía?</Text>
+              <Text style={styles.restoreMessage}>
+                Al restaurar tu membresía, se reactivará el pago automático y 
+                podrás seguir disfrutando de todos los beneficios de tu plan.
+              </Text>
+              
+              <View style={styles.restoreModalButtons}>
+                <TouchableOpacity
+                  style={[styles.restoreActionButton, styles.restoreConfirmButton]}
+                  onPress={confirmRestore}
+                >
+                  <Text style={styles.restoreActionButtonText}>Sí, Restaurar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.restoreActionButton, styles.restoreGoBackButton]}
+                  onPress={() => setShowRestoreModal(false)}
+                >
+                  <Text style={styles.restoreActionButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </SafeAreaView>
   );
@@ -382,21 +440,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
-    position: 'relative',
+  },
+  cancelledSection: {
+    marginBottom: 15,
   },
   cancelledBadge: {
-    position: 'absolute',
-    top: 15,
-    right: 15,
     backgroundColor: '#FEE2E2',
     paddingVertical: 3,
     paddingHorizontal: 10,
     borderRadius: 12,
+    alignSelf: 'flex-start',
+    marginBottom: 10,
   },
   cancelledText: {
     color: '#EF4444',
     fontSize: 12,
     fontWeight: '700',
+  },
+  cancelledMessage: {
+    fontSize: 15,
+    color: Colors.text,
+    marginBottom: 15,
   },
   cardTitle: {
     fontSize: 18,
@@ -530,7 +594,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#EF4444',
   },
-  // Estilos para modales
+  renewButton: {
+    backgroundColor: Colors.primary,
+    borderRadius: 8,
+    paddingVertical: 15,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  renewButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -563,7 +638,6 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '600',
   },
-  // Estilos para opciones de plan
   planOption: {
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -594,7 +668,6 @@ const styles = StyleSheet.create({
     color: Colors.text,
     marginBottom: 3,
   },
-  // Estilos para formulario de tarjeta
   inputLabel: {
     fontSize: 14,
     color: Colors.textMuted,
@@ -626,7 +699,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  // Estilos para modal de cancelación
   cancelIcon: {
     alignSelf: 'center',
     marginBottom: 10,
@@ -656,6 +728,39 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
   },
   cancelActionButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  restoreIcon: {
+    alignSelf: 'center',
+    marginBottom: 10,
+    color: '#10B981',
+  },
+  restoreMessage: {
+    fontSize: 15,
+    color: Colors.text,
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  restoreModalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  restoreActionButton: {
+    flex: 1,
+    borderRadius: 8,
+    padding: 15,
+    alignItems: 'center',
+  },
+  restoreConfirmButton: {
+    backgroundColor: '#D1FAE5',
+    marginRight: 10,
+  },
+  restoreGoBackButton: {
+    backgroundColor: '#E5E7EB',
+  },
+  restoreActionButtonText: {
     fontSize: 16,
     fontWeight: '600',
   },

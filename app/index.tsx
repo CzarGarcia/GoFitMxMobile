@@ -11,8 +11,10 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-      if (email === 'razc320' && password === 'razc320') {
-      router.replace('/home');
+    if (email === 'razc320' && password === 'razc320') {
+      router.replace('/home'); // Usuario normal
+    } else if (email === 'instructor' && password === 'instructor') {
+      router.replace('/InstructorHomeScreen'); // Usuario instructor
     } else {
       alert('Credenciales incorrectas 🥲');
     }
@@ -37,6 +39,7 @@ export default function LoginScreen() {
           Bienvenido a GOFITMX 👋
         </Animatable.Text>
 
+        {/* Email */}
         <Animatable.View
           animation="fadeInLeft"
           delay={700}
@@ -54,6 +57,7 @@ export default function LoginScreen() {
           />
         </Animatable.View>
 
+        {/* Password */}
         <Animatable.View
           animation="fadeInRight"
           delay={900}
@@ -70,6 +74,7 @@ export default function LoginScreen() {
           />
         </Animatable.View>
 
+        {/* Botón login */}
         <Animatable.View animation="pulse" delay={1100} iterationCount="infinite">
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Iniciar sesión</Text>
